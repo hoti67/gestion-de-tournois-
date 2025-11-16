@@ -53,8 +53,8 @@ public class ConnectionSimpleSGBD {
      * @return
      */
     public static Connection defaultCon() throws SQLException {
-//        return mysqlServeurPourM3();
-        return h2InMemory("test");
+        return mysqlServeurPourM3();
+//        return h2InMemory("test");
 //        return h2InFile("bdd");
     }
 
@@ -94,9 +94,9 @@ public class ConnectionSimpleSGBD {
      */
     public static Connection mysqlServeurPourM3() throws SQLException {
         return connectMySQL("92.222.25.165", 3306,
-                "m3_fdebertranddeb01",
-                "m3_fdebertranddeb01",
-                "je ne le donne pas");
+                "m3_hkerloch01",
+                "m3_hkerloch01",
+                "3c3e703a");
     }
 
     /**
@@ -118,6 +118,7 @@ public class ConnectionSimpleSGBD {
      * de données distinctes en mémoire : il suffit alors de leur donner deux
      * noms différents.
      * @return
+     * @throws java.sql.SQLException
      */
     public static Connection h2InMemory(String name) throws SQLException {
         try {
