@@ -1,0 +1,45 @@
+/*
+   CSS styling examples for the Vaadin app.
+
+   Visit https://vaadin.com/docs/styling/application-theme/ for more information.
+*/
+
+/* Example: CSS class name to center align the content . */
+.centered-content {
+  margin: 0 auto;
+  max-width: 250px;
+}
+
+/* Example: the style is applied only to the textfields which have the `bordered` class name. */
+vaadin-text-field.bordered::part(input-field) {
+  box-shadow: inset 0 0 0 1px var(--lumo-contrast-30pct);
+  background-color: var(--lumo-base-color);
+}
+
+.loginLayout{
+    border : 3px solid var(--lumo-primary-color);
+    border-radius: 10px var(--lumo-border-radius-m);
+    padding: 10px;
+}
+
+.loginLayout2{
+    border : 3px solid var(--lumo-primary-color);
+    border-radius: 10px var(--lumo-border-radius-m);
+    padding: 8px;
+    margin-bottom: 5px;
+}
+
+.partenaire-div {
+    width: 20%;
+    height: 60px;
+    padding: 20px;            /* Espace à l'intérieur de la boîte */
+    margin: 15px 15px;           /* Espacement entre chaque div */
+    border: 1px solid var(--lumo-primary-color);   /* Bord autour du div */
+    background-color: #f0f0f0; /* Couleur de fond */
+    border-radius: 10px var(--lumo-border-radius-m);      /* Coins arrondis */
+    display: flex;            /* Pour permettre un alignement des éléments à l'intérieur */
+    justify-content: space-between;
+    align-items: center;
+}
+
+

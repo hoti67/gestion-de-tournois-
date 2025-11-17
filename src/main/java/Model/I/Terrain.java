@@ -16,26 +16,9 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with CoursBeuvron.  If not, see <http://www.gnu.org/licenses/>.
  */
-package fr.insa.toto.webui;
+package Model.I;
 
-import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.Route;
 
-/**
- *
- * @author francois
- 
-@Route(value = "")
-@PageTitle("Likes")
-public class VuePrincipale extends VerticalLayout {
-
-    public VuePrincipale() {
-        this.add(new H2("TODO"));
-    }
-
+public class Terrain {
+    
 }
-*/

@@ -9,4 +9,11 @@
                 <goal>-Pproduction</goal>
             </goals>
         </action>
+        <action>
+            <actionName>CUSTOM-Run</actionName>
+            <displayName>Run</displayName>
+            <goals>
+                <goal>spring-boot:run</goal>
+            </goals>
+        </action>
     </actions>

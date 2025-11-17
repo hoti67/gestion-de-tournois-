@@ -35,9 +35,9 @@ public class TestExceptionsUtils {
         }
         throw new RuntimeException("coucou2");
     }
-
+/*
     public static void main(String[] args) {
         test();
-    }
+    }*/
 
 }

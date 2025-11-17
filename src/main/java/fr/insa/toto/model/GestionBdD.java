@@ -242,7 +242,7 @@ public class GestionSchema {
     /**
      *
      * @param args
-     */
+     
     public static void main(String[] args) {
         try (Connection con = ConnectionSimpleSGBD.defaultCon()) {
             razBdd(con);
@@ -250,6 +250,6 @@ public class GestionSchema {
             throw new Error(ex);
         }
     }
-
+*/
 }  
 }

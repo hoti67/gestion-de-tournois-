@@ -53,7 +53,7 @@ public class BdDtest {
         for (var lo : loisirs) {
           lo.saveInDB(con);
         }
-        List<Joueur> joueurs = List.of(
+        /*List<Joueur> joueurs = List.of(
                 new Joueur("toto", "S", "180",1),
                 new Joueur("titi", "J", "160",2),
                 new Joueur("tutu", null, null,3),
@@ -137,7 +137,7 @@ public class BdDtest {
         }
     }
     
-
+/*
     public static void main(String[] args) {
         try (Connection con = ConnectionSimpleSGBD.defaultCon()) {
             GestionBdD.razBdd(con);
@@ -146,7 +146,7 @@ public class BdDtest {
             throw new Error(ex);
         }
     }
- 
+ */
 }
         
         

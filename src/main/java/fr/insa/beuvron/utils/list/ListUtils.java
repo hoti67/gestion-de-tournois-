@@ -196,9 +196,9 @@ public class ListUtils {
         System.out.println("Vous avez selectionné : ");
         System.out.println(enumerateList(select));
     }
-    
+    /*
     public static void main(String[] args) {
         testSelMult();
     }
-
+*/
 }

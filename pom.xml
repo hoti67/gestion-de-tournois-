@@ -3,12 +3,13 @@
     <modelVersion>4.0.0</modelVersion>
     <!-- Project from https://start.vaadin.com/c80d0c3c-029c-47a6-90d9-9ee8b42aa117 -->
     <groupId>com.example</groupId>
-    <artifactId>pasapas2025M3I3</artifactId>
+    <artifactId>Gestion_Tournois</artifactId>
+    <name>Gestion_Tournois</name>
     <version>1.0-SNAPSHOT</version>
     <packaging>war</packaging>
     
     <properties>
-        <java.version>21</java.version>
+        <java.version>17</java.version>
         <vaadin.version>24.9.0</vaadin.version>
     </properties>
     
@@ -28,8 +29,39 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>2.19.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>2.19.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>2.19.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>3.16.0</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>1.17.0</version>
+            </dependency>
+            <dependency>
+                <groupId>jakarta.xml.bind</groupId>
+                <artifactId>jakarta.xml.bind-api</artifactId>
+                <version>3.0.1</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
+
     
     <dependencies>
         <!-- pour ResultSetUtil -->
@@ -153,5 +185,4 @@
             <url>https://maven.vaadin.com/vaadin-prereleases</url>
         </pluginRepository>
     </pluginRepositories>
-    <name>M3Vide2025</name>
 </project>

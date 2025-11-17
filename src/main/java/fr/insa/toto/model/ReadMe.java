@@ -21,10 +21,11 @@ package fr.insa.toto.model;
 /**
  *
  * @author francois
- */
+ 
 public class ReadMe {
     public static void main(String[] args) {
         System.out.println("TODO voir sujet M3 TD3");
     }
     
 }
+*/
