@@ -1,24 +1,89 @@
-/*
-Copyright 2000- Francois de Bertrand de Beuvron
-
-This file is part of CoursBeuvron.
-
-CoursBeuvron is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-CoursBeuvron is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with CoursBeuvron.  If not, see <http://www.gnu.org/licenses/>.
- */
 package Model.I;
 
+import java.sql.*;
+import java.util.ArrayList;
 
 public class Sport {
+
+    private static final Connection con = GestionBDD.getConnection();
+
+    private int id;
+    private String nom;
+    private int nbJoueurs;
+
+    public Sport(int id, String nom, int nbJoueurs) {
+        this.id = id;
+        this.nom = nom;
+        this.nbJoueurs = nbJoueurs;
+    }
+
+    public static ArrayList<Sport> listSports() {
+        ArrayList<Sport> sports = new ArrayList<>();
+        try (PreparedStatement st = con.prepareStatement(
+                "SELECT * FROM sports")) {
+
+            ResultSet rs = st.executeQuery();
+            while (rs.next()) {
+                sports.add(new Sport(
+                        rs.getInt("id"),
+                        rs.getString("nom"),
+                        rs.getInt("nb_joueurs")
+                ));
+            }
+        } catch (SQLException e) {
+            System.out.println("Erreur listSports : " + e.getMessage());
+        }
+        return sports;
+    }
+
+    public static Sport getById(int id) {
+        try (PreparedStatement st = con.prepareStatement(
+                "SELECT * FROM sports WHERE id = ?")) {
+
+            st.setInt(1, id);
+            ResultSet rs = st.executeQuery();
+
+            if (rs.next()) {
+                return new Sport(
+                        id,
+                        rs.getString("nom"),
+                        rs.getInt("nb_joueurs")
+                );
+            }
+        } catch (SQLException e) {
+            System.out.println("Erreur getSportById : " + e.getMessage());
+        }
+        return null;
+    }
+
+    public static ArrayList<Sport> getByTournoiId(int idTournoi) {
+        ArrayList<Sport> sports = new ArrayList<>();
+
+        String sql = "SELECT id_sport FROM terrains WHERE id_tournoi = ?";
+
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setInt(1, idTournoi);
+            ResultSet rs = st.executeQuery();
+
+            while (rs.next()) {
+                sports.add(Sport.getById(rs.getInt("id_sport")));
+            }
+        } catch (SQLException e) {
+            System.out.println("Erreur getByTournoiId Sports : " + e.getMessage());
+        }
+        return sports;
+    }
+    
+    public int getId() {
+        return id;
+    }
+
+    public String getNom() {
+        return nom;
+    }
+
+    public int getNbJoueurs() {
+        return nbJoueurs;
+    }
     
 }

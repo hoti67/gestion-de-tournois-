@@ -9,7 +9,7 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.server.VaadinSession;
 import Model.I.User;
 import View.I.LoginView;
-import View.I.HomeView;
+import View.I.TournoiView;
 import java.sql.SQLException;
 
 
@@ -29,7 +29,7 @@ public class LoginController {
                     User currentUser = User.login(username, password);
                     if (currentUser != null){
                         VaadinSession.getCurrent().setAttribute(User.class, currentUser);
-                        UI.getCurrent().navigate(HomeView.class);
+                        UI.getCurrent().navigate(TournoiView.class);
                     } else {
                         this.loginview.getLoginForm().setEnabled(true); // Réactiver le bouton
                         Notification.show("L'adresse mail ou/et le mot de passe est incorrect");

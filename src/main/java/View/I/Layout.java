@@ -1,133 +1,56 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package View.I;
 
-import com.vaadin.flow.component.applayout.AppLayout;
-import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.contextmenu.ContextMenu;
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.sidenav.SideNav;
-import com.vaadin.flow.component.sidenav.SideNavItem;
-import Controller.I.LayoutController;
-import Model.I.User;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.applayout.AppLayout;
+import com.vaadin.flow.router.RouterLink;
+import com.vaadin.flow.server.VaadinSession;
 
+import Model.I.User;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 
 public class Layout extends AppLayout {
-    
-    private DrawerToggle toggle;
-    private SideNav sideNav = new SideNav();
-    private H3 txt;
-    private Avatar avatarName;
-    private Button avatarButton;
-    private User user;
-    private Div logoutText = new Div();
-    private Div container = new Div();
-    private ContextMenu contextMenu;
-    private HorizontalLayout logoutLayout = new HorizontalLayout();
-    private Icon logoutIcon = VaadinIcon.SIGN_OUT.create();
-    
+
     public Layout() {
-        new LayoutController(this);
+        createHeader();
     }
-    
-    // SideNav commune
-    public void SN(){
-        txt = new H3("MoveINSA");
-        txt.addClassName("text-secondary");
-        txt.getStyle()
-            .set("font-family", "Arial, sans-serif")  // Police
-            .set("text-align", "center");
-        
-        toggle = new DrawerToggle();     
-        
-        DeconnexionUser();
-    }
-    
-    // --------------------------------------------------------------- Bouton de deconnexion du user utilise
-    public void DeconnexionUser() {
-        avatarName = new Avatar(user.getNom().toUpperCase()+ " " +user.getPrenom().toUpperCase()); // mettre les initiales de l'etudiant
-        avatarButton = new Button(avatarName);
-        
-        avatarButton.getStyle()
-            .set("border-radius", "50%")  
-            .set("width", "37px")  
-            .set("height", "37px")  
-            .set("border", "none")  
-            .set("cursor", "pointer")  
-            .set("position", "relative")
-            .set("left", "85%");
 
-        avatarName.getStyle()
-            .set("width", "37px")  
-            .set("height", "37px") 
-            .set("border-radius", "50%");
-        
-        container.add(avatarButton);
-        
-        contextMenu = new ContextMenu(avatarButton);
-        contextMenu.setOpenOnClick(true);
+    private void createHeader() {
+        // Logo simple (juste un H1 stylé ici)
+        H1 logo = new H1("🏆 MatchiCouli 🏆");
+        logo.getStyle()
+            .set("margin", "0")
+            .set("font-size", "24px")
+            .set("color", "var(--lumo-primary-color)")
+            .set("font-weight", "bold");
 
-        logoutText.setText("Déconnexion");
-        logoutLayout.add(logoutIcon, logoutText);
-        
-        contextMenu.addItem(logoutLayout, event -> {
-            Notification.show("Vous êtes déconnecté");
+        // ----- droite : avatar avec menu -----
+        User user = VaadinSession.getCurrent().getAttribute(User.class);
+        String initials = user.getNom().substring(0,1) + user.getPrenom().substring(0,1);
+
+        Avatar avatar = new Avatar(initials);
+        avatar.setAbbreviation(initials);
+
+        ContextMenu menu = new ContextMenu();
+        menu.setTarget(avatar);   // associe le menu à l’avatar
+        menu.addItem("Déconnexion", e -> {
+            VaadinSession.getCurrent().close();
+            getUI().ifPresent(ui -> ui.getPage().setLocation("/login"));
         });
-    }
-    
-    // --------------------------------------------------------------- SideNav pour les etudiants
-    public void viewJoueur(){  
-        avatarName.setColorIndex(2);
 
-        addToNavbar(toggle, txt, avatarButton);
-        
-        /*sideNav.addItem(new SideNavItem("Accueil", HomeView.class, VaadinIcon.HOME.create()));  // Nom, classe liée, icône
-        sideNav.addItem(new SideNavItem("Mon profil", ProfilView.class, VaadinIcon.USER.create()));
-        sideNav.addItem(new SideNavItem("Offres", OffreView.class, VaadinIcon.DIPLOMA.create()));
-        sideNav.addItem(new SideNavItem("Partenaires", PartenaireView.class, VaadinIcon.GLOBE.create()));
-        sideNav.addItem(new SideNavItem("Mes Candidatures", CandidatureView.class, VaadinIcon.ENVELOPE.create()));
-*/
-        addToDrawer(sideNav);
-    }
-    
-    
-    // --------------------------------------------------------------- SideNav pour les admins
-    public void viewAdmin(){
-        avatarName.setColorIndex(0);
-        addToNavbar(toggle, txt, avatarButton);
-        /*
-        sideNav.addItem(new SideNavItem("Accueil", HomeView.class, VaadinIcon.HOME.create()));
-        sideNav.addItem(new SideNavItem("Mon profil", ProfilView.class, VaadinIcon.USER.create()));
-        sideNav.addItem(new SideNavItem("Offres", OffreView.class, VaadinIcon.DIPLOMA.create()));
-        sideNav.addItem(new SideNavItem("Partenaires", PartenaireView.class, VaadinIcon.GLOBE.create()));
-        sideNav.addItem(new SideNavItem("Utilisateurs", UserListView.class, VaadinIcon.GROUP.create()));
-        */
-        addToDrawer(sideNav);
-    }
-    
-    
-    public DrawerToggle getToggle() {
-        return toggle;
+        // ----- layout header -----
+        HorizontalLayout header = new HorizontalLayout(logo, avatar);
+        header.setWidthFull();
+        header.expand(logo);
+        header.setPadding(true);
+        header.setSpacing(true);
+        header.setDefaultVerticalComponentAlignment(Alignment.CENTER);
+
+        addToNavbar(header);
     }
 
-    public SideNav getSideNav() {
-        return sideNav;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public HorizontalLayout getLogoutLayout() {
-        return logoutLayout;
-    }    
 }

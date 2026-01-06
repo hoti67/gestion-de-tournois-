@@ -1,113 +1,238 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package Model.I;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.SQLIntegrityConstraintViolationException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
-import java.time.LocalDate;
-
+import java.util.List;
+import java.util.Date;
 
 public class Joueur {
-    
+
     private static final Connection con = GestionBDD.getConnection();
-    
     private int id;
     private String nom;
     private String prenom;
-    boolean sexe;
-    private LocalDate naissance;
-    private float score;
-    private int id_equipe;
+    private int taille;
+    private Date naissance;
+    private int sexe;
+    private int score;
+    private int idEquipe;
+    private Integer idUtilisateur; // nullable
+    private boolean disponible;
 
-    public Joueur(int id, String nom, String prenom, boolean sexe, LocalDate naissance, float score, int id_equipe) {
+    /* ===================== CONSTRUCTEURS ===================== */
+
+    public Joueur(int id, String nom, String prenom, int taille, Date naissance, int sexe, int score, int idEquipe, Integer idUtilisateur, boolean disponible) {
         this.id = id;
         this.nom = nom;
         this.prenom = prenom;
-        this.sexe = sexe;
+        this.taille = taille;
         this.naissance = naissance;
+        this.sexe = sexe;
         this.score = score;
-        this.id_equipe = id_equipe;
+        this.idEquipe = idEquipe;
+        this.idUtilisateur = idUtilisateur;
+        this.disponible = disponible;
     }
     
-    // ---------------------------------------------------------------------------- Save in DataBase. Id is AUTOINCREMENT  
-    public void saveInDB() throws SQLException {
-        String sql = "INSERT INTO joueurs (nom, prenom, sexe, date_naissance, score, id_equipe) VALUES (?, ?, ?, ?, ?, ?)";
-        try(PreparedStatement pst = con.prepareStatement(sql)){
-            pst.setString(1, nom);
-            pst.setString(2, prenom);
-            pst.setBoolean(3, sexe);
-            pst.setDate(4, java.sql.Date.valueOf(naissance));
-            pst.setFloat(5, score);
-            pst.setInt(6, id_equipe);  // Chercher l'id de l'equipe dans la classe equipe
-            pst.executeUpdate();
-            System.out.println("Partenaire saved");
-        }
-    }
-    
-    // ----------------------------------------------------------------------------- Recherche idjoueur avec nom, prenom
-    public static int idJoueur (String nom, String prenom){
-        String sql = "SELECT id FROM joueurs WHERE nom = ? && prenom = ?";
-        try (PreparedStatement st = con.prepareStatement(sql)){
-            st.setString(1, nom);
-            st.setString(2, prenom);
-            
-            try (ResultSet res = st.executeQuery()){
-                if (res.next()){
-                    return res.getInt("id");
-                } else return -1;
+    public void saveinDB() {
+        String sql = """
+            INSERT INTO joueurs (nom, prenom, score, id_utilisateur, disponibilite)
+            VALUES (?, ?, ?, ?, ?)
+        """;
+
+        try (PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+            ps.setString(1, nom);
+            ps.setString(2, prenom);
+            ps.setInt(3, score);
+            ps.setBoolean(5, disponible);
+
+            if (idUtilisateur == null) {
+                ps.setNull(4, Types.INTEGER);
+            } else {
+                ps.setInt(4, idUtilisateur);
             }
-        }
-        catch(SQLException e){
-            System.out.println("Erreur lors de la recherche de l'id joueur: "+e);
-            return -1;
+
+            ps.executeUpdate();
+
+            ResultSet rs = ps.getGeneratedKeys();
+            if (rs.next()) {
+                this.id = rs.getInt(1);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
-    
-    // ------------------------------------------------------------------------------- Listes partenaires
-    public static ArrayList<Joueur> listPart(){
+
+    /* ===================== SCORES ===================== */
+
+    public void addScore(int delta) {
+        this.score += delta;
+
+        String sql = "UPDATE joueurs SET score = ? WHERE id = ?";
+
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, score);
+            ps.setInt(2, id);
+            ps.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /* ===================== RECUPERATION ===================== */
+
+    public static Joueur getById(int id) {
+        String sql = "SELECT * FROM joueurs WHERE id = ?";
+        try (PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                return fromResultSet(rs);
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Erreur getDisponibles : " + e);
+        }
+        return null;
+    }
+
+    public static ArrayList<Joueur> getByTournoiId(int tournoiId) {
         ArrayList<Joueur> joueurs = new ArrayList<>();
-        String sql = "SELECT * FROM joueurs";
-        try (Statement st = con.createStatement()){
-            
-            ResultSet rs = st.executeQuery(sql);
-            
-            while (rs.next()){
-                int id = rs.getInt("id");
-                String nom = rs.getString("nom");
-                String prenom = rs.getString("prenom");
-                boolean sexe = rs.getBoolean("sexe");
-                LocalDate naissance = rs.getDate(nom).toLocalDate();
-                float score = rs.getFloat("score");
-                int id_equipe = 0; // A corriger avec la classe equipe
-                Joueur joueur = new Joueur(id, nom, prenom, sexe, naissance, score, id_equipe);
-                joueurs.add(joueur);
+
+        String sql = "SELECT * FROM joueurs WHERE id_tournoi = ?";
+
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, tournoiId);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                joueurs.add(fromResultSet(rs));
             }
-        }
-        catch(SQLException err){
-            System.out.println("Probleme lors de la recherche de la liste des Partenaires : "+err);
-            err.printStackTrace();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         return joueurs;
     }
     
-    // --------------------------------------------------------------------------------- Supprimer ligne de la bdd
-    public static void deleteRow(String nom, String prenom) throws SQLException { 
-        String sql = """
-                     DELETE FROM joueurs
-                     WHERE id = ?;
-                     """;
-        try (PreparedStatement pst = con.prepareStatement(sql)){
-            pst.setInt(1, idJoueur(nom, prenom));
-            pst.executeUpdate();
-            System.out.println("Partenaire supprime");
+    public static ArrayList<Joueur> getDisponibles() {
+        ArrayList<Joueur> joueurs = new ArrayList<>();
+
+        String sql = "SELECT * FROM joueurs WHERE disponible = true";
+
+        try (PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                joueurs.add(fromResultSet(rs));
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Erreur getDisponibles : " + e);
         }
-        
+
+        return joueurs;
     }
+    
+    /* ===================== CLASSEMENT ===================== */
+
+    public static ArrayList<Joueur> getClassementByTournoiId(int tournoiId) {
+        ArrayList<Joueur> joueurs = new ArrayList<>();
+
+        String sql = """
+            SELECT * FROM joueurs
+            WHERE id_tournoi = ?
+            ORDER BY score DESC
+        """;
+
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, tournoiId);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                joueurs.add(fromResultSet(rs));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return joueurs;
+    }
+
+    /* ===================== MATCH / EQUIPES ===================== */
+
+    public static ArrayList<Joueur> getByMatchId(int matchId, int equipe) {
+        ArrayList<Joueur> joueurs = new ArrayList<>();
+
+        String sql = """
+            SELECT j.*
+            FROM joueurs j
+            JOIN match_joueurs mj ON j.id = mj.id_joueur
+            WHERE mj.id_match = ? AND mj.equipe = ?
+        """;
+
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, matchId);
+            ps.setInt(2, equipe);
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                joueurs.add(fromResultSet(rs));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return joueurs;
+    }
+
+    /* ===================== UTILS ===================== */
+
+    private static Joueur fromResultSet(ResultSet rs) throws SQLException {
+        return new Joueur(
+                rs.getInt("id"),
+                rs.getString("nom"),
+                rs.getString("prenom"),
+                rs.getInt("taille"),
+                rs.getDate("naissance"),
+                rs.getInt("sexe"),
+                rs.getInt("score"),
+                rs.getInt("id_equipe"),
+                rs.getInt("id_utilisateur"),
+                rs.getBoolean("disponible")
+        );
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getNom() {
+        return nom;
+    }
+
+    public String getPrenom() {
+        return prenom;
+    }
+
+    public int getScore() {
+        return score;
+    }
+
+    public Integer getIdUtilisateur() {
+        return idUtilisateur;
+    }
+
+    public boolean isDisponible() {
+        return disponible;
+    }
+    
+    
 }

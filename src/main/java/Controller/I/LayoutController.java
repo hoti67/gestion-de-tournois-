@@ -17,11 +17,11 @@ public class LayoutController {
     public LayoutController(Layout LE){
         
         this.LE = LE;
-        
+        /*
         whichLayout();
-        logout();
+        logout();*/
     }
-    
+    /*
     // Gère sur quelle vue est renvoyé l'utilisateur après sa connexion
     private void whichLayout(){
         User currentUser = VaadinSession.getCurrent().getAttribute(User.class);     // Set l'attribut à la connexion dans le loginController
@@ -55,5 +55,5 @@ public class LayoutController {
         this.LE.getLogoutLayout().addClickListener(event -> {
             UI.getCurrent().navigate(LoginView.class);
         });    
-    }
+    }*/
 }
