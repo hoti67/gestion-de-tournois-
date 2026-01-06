@@ -10,6 +10,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Span;
@@ -52,21 +53,51 @@ public class RondeView extends VerticalLayout
 
     private void buildUI() {
         removeAll();
-        setAlignItems(Alignment.CENTER);
         setPadding(true);
+        setAlignItems(Alignment.STRETCH); // important
 
+        // ----- Bouton retour -----
+        Button retour = new Button("Retour", VaadinIcon.ARROW_LEFT.create());
+        retour.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+
+        retour.addClickListener(e ->
+            getUI().ifPresent(ui ->
+                ui.navigate("tournoi/" + ronde.getIdTournoi())
+            )
+        );
+
+        // ----- Titre -----
         H1 titre = new H1("Ronde " + ronde.getId());
         titre.getStyle().set("color", "var(--lumo-primary-text-color)");
+        titre.getStyle().set("margin", "0");
 
+        // ----- Spacers -----
+        Div left = new Div(retour);
+        Div center = new Div(titre);
+        Div right = new Div(); // vide
+
+        // styles pour le centrage
+        left.getStyle().set("flex", "1");
+        center.getStyle().set("flex", "1").set("text-align", "center");
+        right.getStyle().set("flex", "1");
+
+        HorizontalLayout header = new HorizontalLayout(left, center, right);
+        header.setWidthFull();
+        header.setAlignItems(Alignment.CENTER);
+
+        // ----- Contenu -----
         VerticalLayout matchsLayout = new VerticalLayout();
         matchsLayout.setWidth("80%");
 
+        int i = 1;
         for (Match match : Match.getByRondeId(ronde.getId())) {
-            matchsLayout.add(buildMatchCard(match));
+            matchsLayout.add(buildMatchCard(match, i));
+            i++;
         }
 
-        add(titre, matchsLayout);
+        add(header, matchsLayout);
     }
+
 
 
     // -------------------- POPUP JOUEURS --------------------
@@ -107,7 +138,7 @@ public class RondeView extends VerticalLayout
         dialog.open();
     }
     
-    private Component buildMatchCard(Match match) {
+    private Component buildMatchCard(Match match, int i) {
 
         // Labels de score qu’on pourra modifier dynamiquement
         Span scoreEquipe1Span = new Span(String.valueOf(match.getScoreEquipe1()));
@@ -159,7 +190,7 @@ public class RondeView extends VerticalLayout
         }
 
         // Construire un titre centré
-        H1 titre = new H1("Match n° " + match.getId());
+        H1 titre = new H1("Match n° " + i);
         titre.getStyle().set("text-align", "center");
         titre.addClickListener(ev -> {
             openJoueursDialog(match);

@@ -135,6 +135,21 @@ public class Match {
             st.setInt(3, equipe);
             st.executeUpdate();
         }
+        try (PreparedStatement st = con.prepareStatement("""
+            UPDATE tournoi_joueurs tj
+            JOIN match_joueurs mj ON tj.id_joueur = mj.id_joueur
+            JOIN matchs m ON m.id = mj.id_match
+            JOIN rondes r ON r.id = m.id_ronde
+            SET tj.score = tj.score + ?
+            WHERE mj.id_match = ?
+              AND mj.equipe = ?
+              AND tj.id_tournoi = r.id_tournoi
+        """)) {
+            st.setInt(1, gain);
+            st.setInt(2, id); // id du match
+            st.setInt(3, equipe);
+            st.executeUpdate();
+        }
     }
 
     /* ===================== UTILS ===================== */

@@ -15,7 +15,7 @@ public class Joueur {
     private Date naissance;
     private int sexe;
     private int score;
-    private int idEquipe;
+    private Integer idEquipe;
     private Integer idUtilisateur; // nullable
     private boolean disponible;
 
@@ -33,10 +33,24 @@ public class Joueur {
         this.idUtilisateur = idUtilisateur;
         this.disponible = disponible;
     }
+
+    public Joueur(String nom, String prenom, int taille, Date naissance, int sexe, Integer idUtilisateur) {
+        this.nom = nom;
+        this.prenom = prenom;
+        this.taille = taille;
+        this.naissance = naissance;
+        this.sexe = sexe;
+        this.idUtilisateur = idUtilisateur;
+        score = 0;
+        idEquipe = null;
+        disponible = true;
+    }
+    
+    
     
     public void saveinDB() {
         String sql = """
-            INSERT INTO joueurs (nom, prenom, score, id_utilisateur, disponibilite)
+            INSERT INTO joueurs (nom, prenom, score, id_utilisateur, disponible)
             VALUES (?, ?, ?, ?, ?)
         """;
 
@@ -65,6 +79,22 @@ public class Joueur {
         }
     }
 
+    public static ArrayList<Joueur> listJoueurs() {
+        ArrayList<Joueur> list = new ArrayList<>();
+        String sql = "SELECT * FROM joueurs";
+
+        try (Statement st = con.createStatement();
+             ResultSet rs = st.executeQuery(sql)) {
+
+            while (rs.next()) {
+                list.add(fromResultSet(rs));
+            }
+        } catch (SQLException e) {
+            System.out.println("Erreur list Joueurs : " + e.getMessage());
+        }
+        return list;
+    }
+    
     /* ===================== SCORES ===================== */
 
     public void addScore(int delta) {
@@ -138,32 +168,6 @@ public class Joueur {
 
         return joueurs;
     }
-    
-    /* ===================== CLASSEMENT ===================== */
-
-    public static ArrayList<Joueur> getClassementByTournoiId(int tournoiId) {
-        ArrayList<Joueur> joueurs = new ArrayList<>();
-
-        String sql = """
-            SELECT * FROM joueurs
-            WHERE id_tournoi = ?
-            ORDER BY score DESC
-        """;
-
-        try (PreparedStatement ps = con.prepareStatement(sql)) {
-
-            ps.setInt(1, tournoiId);
-            ResultSet rs = ps.executeQuery();
-
-            while (rs.next()) {
-                joueurs.add(fromResultSet(rs));
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return joueurs;
-    }
 
     /* ===================== MATCH / EQUIPES ===================== */
 
@@ -192,7 +196,22 @@ public class Joueur {
         }
         return joueurs;
     }
+    
+    public static int getScoreTournoi(int idTournoi, int idJoueur) {
+        String sql = "SELECT score FROM tournoi_joueurs tj WHERE id_tournoi = ? AND id_joueur = ? ORDER BY tj.score DESC";
+        try (PreparedStatement ps = GestionBDD.getConnection().prepareStatement(sql)) {
+            ps.setInt(1, idTournoi);
+            ps.setInt(2, idJoueur);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt("score");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
 
+    
     /* ===================== UTILS ===================== */
 
     private static Joueur fromResultSet(ResultSet rs) throws SQLException {
@@ -208,6 +227,22 @@ public class Joueur {
                 rs.getInt("id_utilisateur"),
                 rs.getBoolean("disponible")
         );
+    }
+
+    public int getTaille() {
+        return taille;
+    }
+
+    public Date getNaissance() {
+        return naissance;
+    }
+
+    public int getSexe() {
+        return sexe;
+    }
+
+    public Integer getIdEquipe() {
+        return idEquipe;
     }
 
     public int getId() {
@@ -232,6 +267,20 @@ public class Joueur {
 
     public boolean isDisponible() {
         return disponible;
+    }
+
+    public void setScore(int score) {
+        this.score = score;
+        String sql = "UPDATE joueurs SET score = ? WHERE id = ?";
+
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setInt(1, score);
+            st.setInt(2, this.id);
+
+            st.executeUpdate();
+        } catch (SQLException err) {
+            System.out.println("Erreur dans la mise à jour du score du joueur : " + err);
+        }
     }
     
     

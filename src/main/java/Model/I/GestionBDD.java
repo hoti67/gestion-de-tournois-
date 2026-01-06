@@ -64,6 +64,7 @@ public class GestionBDD {    // Table User a corrigé
         stmt.execute("DROP TABLE IF EXISTS sports");
         stmt.execute("DROP TABLE IF EXISTS tournois");
         stmt.execute("DROP TABLE IF EXISTS utilisateurs");
+        stmt.execute("DROP TABLE IF EXISTS tournoi_joueurs");
 
         stmt.execute("SET FOREIGN_KEY_CHECKS = 1");
 
@@ -81,7 +82,8 @@ public class GestionBDD {    // Table User a corrigé
             String tournoiTable = """
                                 CREATE TABLE tournois (
                                     id int AUTO_INCREMENT PRIMARY KEY,
-                                    nom VARCHAR(100)
+                                    nom VARCHAR(100),
+                                    statut VARCHAR(20)
                                 )
                                 """;
             stmt.executeUpdate(tournoiTable);
@@ -219,22 +221,22 @@ public class GestionBDD {    // Table User a corrigé
                                     """;
             stmt.executeUpdate(matchJoueursTable);
             
-            /*String tournoiJoueursTable = """
+            String tournoiJoueursTable = """
                                     CREATE TABLE tournoi_joueurs (
                                         id_tournoi INT,
                                         id_joueur INT,
-                                        score INT
-                                        CONSTRAINT fk_tournoi_joueurs
+                                        score INT,
+                                        CONSTRAINT fk_tj
                                             FOREIGN KEY (id_tournoi)
-                                            REFERENCES tournoi(id)
-                                            ON DELETE SET NULL,
+                                            REFERENCES tournois(id)
+                                            ON DELETE CASCADE,
                                         CONSTRAINT fk_joueurs_tournoi
                                             FOREIGN KEY (id_joueur)
                                             REFERENCES joueurs(id)
-                                            ON DELETE SET NULL
+                                            ON DELETE CASCADE
                                     );
                                     """;
-            stmt.executeUpdate(tournoiJoueursTable);*/
+            stmt.executeUpdate(tournoiJoueursTable);
         }
         catch (SQLException err){
             System.out.println("Probleme lors de la creation de la BDD ! "+err);
@@ -243,13 +245,6 @@ public class GestionBDD {    // Table User a corrigé
     
     public static void insertDB() {
         try (Statement stmt = connection.createStatement()) {
-
-            // user
-            stmt.executeUpdate(
-                "INSERT INTO utilisateurs (nom, prenom, mail, mdp, role) " +
-                "VALUES ('Ammari', 'Inayat', 'a@i.fr', '1', 0)"
-            );
-
             
             // Sports
             stmt.executeUpdate("INSERT INTO sports (nom, nb_joueurs) VALUES\n" +
@@ -266,9 +261,7 @@ public class GestionBDD {    // Table User a corrigé
                                 "('Boxe', 1),\n" +
                                 "('Judo', 1);");
 
-            // Tournoi
-            stmt.executeUpdate("INSERT INTO tournois (nom) VALUES ('Tournoi Test')");
-
+            // Users
             stmt.executeUpdate("""
                 INSERT INTO utilisateurs (nom, prenom, mail, mdp, role)
                 VALUES
@@ -287,7 +280,8 @@ public class GestionBDD {    // Table User a corrigé
                 ('Chevalier', 'Noah', 'noah.chevalier@example.com', '1234', 1),
                 ('Lambert', 'Ethan', 'ethan.lambert@example.com', '1234', 1),
                 ('Francois', 'Liam', 'liam.francois@example.com', '1234', 1),
-                ('Henry', 'Nathan', 'nathan.henry@example.com', '1234', 1);
+                ('Henry', 'Nathan', 'nathan.henry@example.com', '1234', 1),
+                ('Ammari', 'Inayat', 'a@i.fr', '1', 0);
             """);
             
             // Joueurs
